@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% include '_partials/sidebar.html' %}
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            {% include '_partials/topbar.html' %}
+            <div class="container-fluid">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800 text-uppercase">Associados</h1>
+                    <a href="{% url 'clientes:associado-create' %}" class="btn btn-primary shadow-sm">
+                        <i class="fas fa-plus text-white-50"></i> Cadastrar Associado
+                    </a>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-md-12">
+                        <!-- Mensagens de Alerta -->
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-primary text-uppercase text-center w-50 mx-auto" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Tabela de Associados -->
+                        <div class="table-responsive">
+                            {% if object_list %}
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col">Nome</th>
+                                            <th scope="col">Telefone</th>
+                                            <th scope="col">Cidade/UF</th>
+                                            <th scope="col">Ativo?</th>
+                                            <th scope="col" class="text-center">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for associado in object_list %}
+                                            <tr>
+                                                <td class="fw-bold">{{ associado.nome_sobrenome }}</td>
+                                                <td>{{ associado.telefone }}</td>
+                                                <td>{{ associado.cidade }}-{{ associado.estado }}</td>
+                                                <td>
+                                                    {% if associado.usuario_ativo %}
+                                                        <span class="badge bg-success">Sim</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Não</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-center">
+                                                    <a href="{% url 'clientes:associado-update' associado.id %}" class="btn btn-outline-info btn-sm">
+                                                        <i class="fas fa-edit"></i> Atualizar
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="alert alert-primary text-uppercase text-center w-50 mx-auto mt-4" role="alert">
+                                    Nenhum associado encontrado
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include '_partials/footer.html' %}
+    </div>
+{% endblock %}

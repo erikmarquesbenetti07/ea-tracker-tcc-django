@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% include '_partials/sidebar.html' %}
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            {% include '_partials/topbar.html' %}
+            <div class="container-fluid">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800 text-uppercase">Empreendimento</h1>
+                </div>
+
+                <!-- Mensagens de Feedback -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-primary text-uppercase text-center w-50 mx-auto" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="row">
+                    {% if object_list %}
+                        {% for empreendimento in object_list %}
+                            <div class="col-xl-8 col-md-10 mx-auto mb-4">
+                                <div class="card border-0 shadow-sm">
+                                    <a href="{% url 'associados:empreendimento-detail' empreendimento.id %}">
+                                        <img src="{{ empreendimento.capa.url }}" class="card-img-top rounded-top" alt="{{ empreendimento.nome }}" style="height: 300px; object-fit: cover;">
+                                    </a>
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title font-weight-bold text-primary">{{ empreendimento.nome }}</h5>
+                                        <p class="card-text mb-2"><strong>Status:</strong> {{ empreendimento.status_empreendimento }}</p>
+                                        <p class="card-text mb-2"><strong>Estágio da obra:</strong> {{ empreendimento.estagio_empreendimento }}</p>
+                                        <a href="{% url 'associados:empreendimento-detail' empreendimento.id %}" class="btn btn-outline-info btn-sm text-uppercase">
+                                            Detalhes do empreendimento
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-primary text-uppercase text-center w-50 mx-auto mt-4 mb-5" role="alert">
+                            Nenhum empreendimento encontrado
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% include '_partials/footer.html' %}
+    </div>
+{% endblock %}

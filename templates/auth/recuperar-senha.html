@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container pt-5 mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="card border-0 shadow-lg my-5">
+                    <div class="card-body p-5">
+                        <!-- Logo -->
+                        <div class="text-center mb-4">
+                            <img src="{% static 'images/eatracker-logo.png' %}" class="img-fluid w-25" alt="EA Tracker logo">
+                            <h4 class="text-uppercase mt-3">Recuperar Senha</h4>
+                        </div>
+
+                        <!-- Feedback Messages -->
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-success text-center text-uppercase" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Número de Telefone Formulário -->
+                        <form method="post" class="user">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <input type="text" class="form-control form-control-user" name="telefone" placeholder="Digite seu número de telefone" required>
+                            </div>
+                            <button type="submit" class="btn btn-info btn-user btn-block text-uppercase shadow-sm">
+                                Enviar código de verificação
+                            </button>
+                        </form>
+
+                        <!-- Link para login -->
+                        <div class="text-center mt-3">
+                            <a class="small" href="{% url 'usuarios:login-usuario' %}">Voltar para o login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

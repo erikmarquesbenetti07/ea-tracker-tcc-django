@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% include '_partials/sidebar.html' %}
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            {% include '_partials/topbar.html' %}
+            <div class="container-fluid">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800 text-uppercase">Fotos andamento obra {{ empreendimento.nome }}</h1>
+                    <a href="{% url 'gestores:empreendimento-update' empreendimento.id %}" class="btn btn-primary shadow-sm">
+                        <i class="fas fa-arrow-left text-white-50"></i> Voltar
+                    </a>
+                </div>
+
+                <!-- Mensagens de Feedback -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-primary text-uppercase text-center" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Galeria de Fotos -->
+                <div class="row">
+                    {% for foto in fotos %}
+                        <div class="col-md-3 py-4 position-relative">
+                            <a href="{% url 'gestores:empreendimento-foto-andamento-delete' foto.id %}" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2" title="Apagar">X</a>
+                            <div class="border rounded shadow-sm p-2">
+                                <img src="{{ foto.imagem.url }}" class="w-100 rounded" alt="Foto Andamento">
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Formulário de Upload -->
+                <form method="POST" enctype="multipart/form-data" class="mt-4">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <div id="errors" class="alert alert-danger">
+                            <p>Verifique se os dados informados estão corretos:</p>
+                            {{ form.non_field_errors }}
+                            <ul>
+                                {% for field in form %}
+                                    {% if field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <input type="hidden" name="empreendimento" value="{{ empreendimento.id }}">
+
+                    <div class="mb-3">
+                        <label for="id_imagem">Foto Imóvel:</label>
+                        <div class="custom-file">
+                            <input type="file" name="imagem" class="custom-file-input" id="id_imagem" required>
+                            <label class="custom-file-label" for="id_imagem"><i class="fas fa-upload"></i> Escolha a imagem...</label>
+                            <small class="form-text text-muted">Tamanho recomendado: 1024 x 768</small>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_mes">Data da Foto:</label>
+                        <input type="text" name="mes" class="form-control" id="id_mes" required placeholder="DD/MM/AAAA">
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_legenda">Legenda:</label>
+                        <input type="text" name="legenda" class="form-control" id="id_legenda" placeholder="Descrição da foto" required>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success btn-lg text-uppercase shadow-sm px-4">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% include '_partials/footer.html' %}
+    </div>
+{% endblock %}
+
+{% block js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#id_mes').mask('00/00/0000');
+        // Exibe o nome do arquivo selecionado no campo de upload
+        $('.custom-file-input').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').html('<i class="fas fa-file-alt"></i> ' + fileName);
+        });
+    });
+</script>
+{% endblock %}

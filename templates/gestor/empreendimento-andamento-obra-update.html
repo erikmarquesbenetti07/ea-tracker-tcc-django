@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    {% include '_partials/sidebar.html' %}
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            {% include '_partials/topbar.html' %}
+            <div class="container-fluid">
+                <!-- Título e Botão Voltar -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 text-gray-800 text-uppercase">Andamento da Obra - {{ empreendimento.nome }}</h1>
+                    <a href="{% url 'gestores:empreendimento-update' empreendimento.id %}" class="btn btn-outline-secondary shadow-sm">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                </div>
+
+                <!-- Link para Fotos de Andamento da Obra -->
+                <a href="{% url 'gestores:empreendimento-foto-andamento-update' empreendimento.id %}" class="btn btn-outline-info text-uppercase mb-4">
+                    <i class="fas fa-images"></i> Fotos Andamento da Obra
+                </a>
+
+                <!-- Mensagens de Feedback -->
+                {% if messages %}
+                    <div class="alert alert-primary text-center text-uppercase" role="alert">
+                        {% for message in messages %}{{ message }}{% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Formulário de Atualização do Andamento -->
+                <form method="POST" enctype="multipart/form-data" class="mt-4">
+                    {% csrf_token %}
+
+                    <!-- Mensagens de Erro -->
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <p>Verifique se os dados informados estão corretos:</p>
+                            <ul>
+                                {% for field in form %}
+                                    {% if field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <!-- Opções de Exibição -->
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">Opções de Exibição</h5>
+                            <div class="card p-3 shadow-sm border-light">
+                                {% for field in form %}
+                                    {% if field.name|slice:":6" == "exibe_" %}
+                                        <div class="form-check mb-2">
+                                            {{ field }}
+                                            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Percentuais de Andamento -->
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">Percentual de Andamento</h5>
+                            <div class="card p-3 shadow-sm border-light">
+                                {% for field in form %}
+                                    {% if field.name|slice:":11" == "percentual_" %}
+                                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                        {{ field }}
+                                        <div class="progress mb-3" style="height: 8px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ field.value }}%;" 
+                                                 aria-valuenow="{{ field.value }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão de Submissão -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success btn-lg text-uppercase shadow-sm px-4">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% include '_partials/footer.html' %}
+    </div>
+{% endblock %}
+
+{% block js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Exibe o nome do arquivo selecionado no campo de upload
+        $('.custom-file-input').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').html('<i class="fas fa-file-alt"></i> ' + fileName);
+        });
+    });
+</script>
+{% endblock %}

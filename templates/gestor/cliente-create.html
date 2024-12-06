@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% include '_partials/sidebar.html' %}
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            {% include '_partials/topbar.html' %}
+            <div class="container-fluid">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 text-gray-800 text-uppercase">Cadastrar Cliente</h1>
+                    <a href="{% url 'gestores:clientes' %}" class="btn btn-outline-secondary shadow-sm">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                </div>
+
+                <!-- Mensagens de Erro -->
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <p>Verifique se os dados informados estão corretos:</p>
+                        {{ form.non_field_errors }}
+                        <ul>
+                            {% for field in form %}
+                                {% if field.errors %}
+                                    <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <!-- Formulário de Cadastro de Cliente -->
+                <form method="post" enctype="multipart/form-data" class="mt-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="nome_sobrenome">Nome</label>
+                        <input type="text" class="form-control" name="nome_sobrenome" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="email">E-mail</label>
+                            <input type="email" class="form-control" name="email" maxlength="80" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="telefone">Telefone</label>
+                            <input type="text" class="form-control" name="telefone" id="telefone" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="empreendimento">Empreendimento</label>
+                            {{ form.empreendimento }}
+                        </div>
+                    </div>
+                    <input type="hidden" name="tipo_usuario" value="CLIENTE">
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="cep">CEP</label>
+                            <input type="text" class="form-control" name="cep" id="cep" maxlength="9" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" class="form-control" name="cidade" id="cidade" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="estado">Estado</label>
+                            {{ form.estado }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="bloco">Bloco</label>
+                            <input type="text" class="form-control" name="bloco" maxlength="20" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="unidade">Unidade</label>
+                            <input type="text" class="form-control" name="unidade" maxlength="20" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="password1">Senha</label>
+                            <input type="password" class="form-control" name="password1" maxlength="30" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="password2">Repita a senha</label>
+                            <input type="password" class="form-control" name="password2" maxlength="30" required>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success btn-lg text-uppercase shadow-sm px-4">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% include '_partials/footer.html' %}
+    </div>
+{% endblock %}
+
+{% block js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Máscara para os campos de telefone e CEP
+        $('#telefone').mask('(00) 00000-0000');
+        $('#cep').mask('00000-000');
+
+        // Consulta o endereço via API do ViaCEP ao sair do campo de CEP
+        $('#cep').on('blur', function() {
+            var cep = $(this).val().replace('-', '');
+            if (cep.length === 8) {
+                $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
+                    if (!data.erro) {
+                        $('#cidade').val(data.localidade);
+                        $('#id_estado').val(data.uf).change();
+                    } else {
+                        alert("CEP não encontrado!");
+                    }
+                }).fail(function() {
+                    alert("Erro ao consultar o CEP.");
+                });
+            } else {
+                alert("CEP inválido!");
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container text-center">
+        <div class="text-center mt-4">
+            <h1 class="text-purple text-uppercase">Deletar foto do empreendimento</h1>
+            <br>
+        </div>
+        <br><br>
+        <form method="POST">
+            {% csrf_token %}
+            <h4 class="text-black">Tem certeza que deseja apagar a foto do empreendimento? "{{ object }}"?</h4>
+            <a href="{ url 'administra:index' %}" class="btn btn-lg btn-secondary text-uppercase text-white" type="submit">Cancelar</a> <input type="submit" class="btn btn-lg btn-orange text-uppercase" value="Deletar">
+        </form>
+    </div>
+{% endblock  %}

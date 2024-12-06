@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% include '_partials/sidebar.html' %}
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            {% include '_partials/topbar.html' %}
+            <div class="container-fluid">
+                <!-- Título e Botão Voltar -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 text-gray-800 text-uppercase">Fotos: {{ empreendimento.nome }}</h1>
+                    <a href="{% url 'gestores:empreendimento-update' empreendimento.id %}" class="btn btn-primary shadow-sm">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                </div>
+
+                <!-- Mensagens de Feedback -->
+                {% if messages %}
+                    <div class="alert alert-primary text-center text-uppercase" role="alert">
+                        {% for message in messages %}{{ message }}{% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Galeria de Fotos -->
+                <div class="row">
+                    {% for foto in fotos %}
+                        <div class="col-md-3 mb-4">
+                            <div class="position-relative">
+                                <a href="{% url 'gestores:empreendimento-foto-delete' foto.id %}" 
+                                   class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2" title="Apagar">X</a>
+                                <img src="{{ foto.imagem.url }}" class="img-fluid rounded border shadow-sm" alt="Foto do Empreendimento">
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-primary text-center text-uppercase mt-4">Nenhuma foto encontrada</div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Formulário de Upload -->
+                <div class="col-md-6 mx-auto">
+                    <form method="POST" enctype="multipart/form-data" class="mt-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="empreendimento" value="{{ empreendimento.id }}">
+
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <p>Verifique se os dados informados estão corretos:</p>
+                                <ul>
+                                    {% for field in form %}
+                                        {% if field.errors %}
+                                            <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        <div class="form-group mb-3">
+                            <label for="id_imagem" class="form-label">Foto do Imóvel</label>
+                            <div class="custom-file">
+                                <input type="file" name="imagem" class="custom-file-input" id="id_imagem" required>
+                                <label class="custom-file-label" for="id_imagem"><i class="fas fa-upload"></i> Escolha a imagem...</label>
+                            </div>
+                            <small class="form-text text-muted">Tamanho recomendado: 1024 x 768</small>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success btn-lg text-uppercase shadow-sm px-4">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% include '_partials/footer.html' %}
+    </div>
+{% endblock %}
+
+{% block js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Atualiza o nome do arquivo selecionado
+        $('.custom-file-input').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').html('<i class="fas fa-file-alt"></i> ' + fileName);
+        });
+    });
+</script>
+{% endblock %}

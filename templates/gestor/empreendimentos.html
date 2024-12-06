@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% include '_partials/sidebar.html' %}
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            {% include '_partials/topbar.html' %}
+            <div class="container-fluid">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800 text-uppercase">Empreendimentos</h1>
+                    <a href="{% url 'gestores:empreendimento-create' %}" class="btn btn-primary shadow-sm">
+                        <i class="fas fa-plus text-white-50"></i> Cadastrar Empreendimento
+                    </a>
+                </div>
+
+                <!-- Mensagens de Feedback -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-primary text-uppercase text-center w-50 mx-auto" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Tabela de Empreendimentos -->
+                <div class="table-responsive">
+                    {% if object_list %}
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light text-center">
+                                <tr>
+                                    <th width="15%">Capa</th>
+                                    <th scope="col">Nome</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Cidade/UF</th>
+                                    <th scope="col">Estágio</th>
+                                    <th scope="col" class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for empreendimento in object_list %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex justify-content-center">
+                                                <img src="{{ empreendimento.capa.url }}" class="rounded border" style="width: 120px; height: auto; object-fit: cover;" alt="Capa">
+                                            </div>
+                                        </td>
+                                        <td class="fw-semibold">{{ empreendimento.nome }}</td>
+                                        <td>{{ empreendimento.status_empreendimento }}</td>
+                                        <td>{{ empreendimento.cidade }}/{{ empreendimento.estado }}</td>
+                                        <td>{{ empreendimento.estagio_empreendimento }}</td>
+                                        <td class="text-center">
+                                            <a href="{% url 'gestores:empreendimento-update' empreendimento.id %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-edit"></i> Atualizar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="alert alert-primary text-uppercase text-center w-50 mx-auto mt-4 mb-5" role="alert">
+                            Nenhum empreendimento encontrado
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% include '_partials/footer.html' %}
+    </div>
+{% endblock %}

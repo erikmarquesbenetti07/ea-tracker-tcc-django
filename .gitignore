@@ -1,0 +1,11 @@
+venv
+__pycache__
+# media
+
+# .vscode
+# .env
+
+*.log
+# *.sqlite3
+
+*.pyc

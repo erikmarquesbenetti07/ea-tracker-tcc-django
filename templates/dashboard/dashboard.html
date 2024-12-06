@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% include '_partials/sidebar.html' %}
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            {% include '_partials/topbar.html' %}
+            <div class="container-fluid">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800 text-uppercase">Dashboard</h1>
+                </div>
+
+                <!-- Seção: Gráficos de Empreendimentos -->
+                <div class="row">
+                    <!-- Gráfico de Pizza: Empreendimentos por Status -->
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card">
+                            <h5>Empreendimentos por Status</h5>
+                            <div class="chart-container">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Gráfico de Barras: Empreendimentos por Cidade -->
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card">
+                            <h5>Empreendimentos por Cidade</h5>
+                            <div class="chart-container">
+                                <canvas id="cidadeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção: Gráficos de Conclusão -->
+                <div class="row">
+                    <!-- Gráfico de Radar: Percentual Médio de Conclusão -->
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card">
+                            <h5>Percentual Médio de Conclusão</h5>
+                            <div class="chart-container">
+                                <canvas id="conclusaoChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Gráfico de Pizza: Empreendimentos por Estado -->
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card">
+                            <h5>Empreendimentos por Estado</h5>
+                            <div class="chart-container">
+                                <canvas id="estadoChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção: Gráficos de Clientes -->
+                <div class="row">
+                    <!-- Gráfico de Quantidade de Clientes Cadastrados -->
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card">
+                            <h5>Quantidade de Clientes Cadastrados</h5>
+                            <div class="chart-container">
+                                <canvas id="clientesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Barras: Clientes por Empreendimento -->
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card">
+                            <h5>Quantidade de Clientes por Empreendimento</h5>
+                            <div class="chart-container">
+                                <canvas id="clientesPorEmpreendimentoChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção: Gráfico de Evolução Diária de Novos Clientes -->
+                <div class="row">
+                    <!-- Gráfico de Linhas: Novos Clientes por Dia -->
+                    <div class="col-md-12 mb-4">
+                        <div class="dashboard-card">
+                            <h5>Evolução Diária de Novos Clientes Cadastrados</h5>
+                            <div class="chart-container">
+                                <canvas id="novosClientesDiaChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção: Gráfico de Evolução Mensal de Novos Clientes -->
+                <div class="row">
+                    <!-- Gráfico de Linhas: Novos Clientes por Mês -->
+                    <div class="col-md-12 mb-4">
+                        <div class="dashboard-card">
+                            <h5>Evolução Mensal de Novos Clientes Cadastrados</h5>
+                            <div class="chart-container">
+                                <canvas id="novosClientesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div> 
+        </div>
+        {% include '_partials/footer.html' %}
+    </div>
+{% endblock %}
+
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0"></script>
+
+<script>
+    // Função para buscar dados da API
+    async function fetchData(url) {
+        const response = await fetch(url);
+        return await response.json();
+    }
+
+    // Função para renderizar os gráficos
+    function renderChart(ctxId, chartType, labels, dataValues, label, backgroundColor, borderColor, options = {}) {
+        new Chart(document.getElementById(ctxId), {
+            type: chartType,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: dataValues,
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: Object.assign({
+                responsive: true,
+                maintainAspectRatio: false
+            }, options)
+        });
+    }
+
+    // Gráfico de Pizza: Empreendimentos por Status
+    fetchData("{% url 'dashboard:empreendimentos_por_status' %}").then(data => {
+        const labels = data.map(item => item.status);
+        const values = data.map(item => item.total);
+        const backgroundColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
+
+        renderChart('statusChart', 'pie', labels, values, 'Quantidade', backgroundColors, backgroundColors);
+    });
+
+    // Gráfico de Barras: Empreendimentos por Cidade
+    fetchData("{% url 'dashboard:empreendimentos_por_cidade' %}").then(data => {
+        const labels = data.map(item => item.cidade);
+        const values = data.map(item => item.total);
+
+        renderChart('cidadeChart', 'bar', labels, values, 'Empreendimentos',
+            'rgba(54, 162, 235, 0.2)', 'rgba(54, 162, 235, 1)', {
+                scales: { y: { beginAtZero: true } }
+            });
+    });
+
+    // Gráfico de Radar: Percentual Médio de Conclusão
+    fetchData("{% url 'dashboard:percentual_conclusao' %}").then(data => {
+        const labels = ['Terraplanagem', 'Pavimentação', 'Habitação', 'Drenagem', 'Paisagismo', 'Esgoto', 'Água Potável', 'Energia e Iluminação'];
+        const values = [
+            data.terraplanagem || 0,
+            data.pavimentacao || 0,
+            data.habitacao || 0,
+            data.drenagem || 0,
+            data.paisagismo || 0,
+            data.esgoto || 0,
+            data.agua_potavel || 0,
+            data.energia_iluminacao || 0
+        ];
+
+        renderChart('conclusaoChart', 'radar', labels, values, 'Percentual Médio',
+            'rgba(153, 102, 255, 0.2)', 'rgba(153, 102, 255, 1)');
+    });
+
+    // Gráfico de Pizza: Empreendimentos por Estado
+    fetchData("{% url 'dashboard:empreendimentos_por_estado' %}").then(data => {
+        const labels = data.map(item => item.estado);
+        const values = data.map(item => item.total);
+        const backgroundColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
+
+        renderChart('estadoChart', 'pie', labels, values, 'Quantidade', backgroundColors, backgroundColors);
+    });
+
+    // Gráfico de Quantidade de Clientes Cadastrados
+    fetchData("{% url 'dashboard:quantidade_clientes' %}").then(data => {
+        const labels = ["Clientes"];
+        const values = [data.total_clientes];
+
+        renderChart('clientesChart', 'bar', labels, values, 'Total de Clientes',
+            'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)', {
+                scales: { y: { beginAtZero: true } }
+            });
+    });
+
+    // Gráfico de Barras: Clientes por Empreendimento
+    fetchData("{% url 'dashboard:clientes_por_empreendimento' %}").then(data => {
+        const labels = data.map(item => item.nome);
+        const values = data.map(item => item.total_clientes);
+
+        renderChart('clientesPorEmpreendimentoChart', 'bar', labels, values, 'Total de Clientes',
+            'rgba(255, 159, 64, 0.2)', 'rgba(255, 159, 64, 1)', {
+                scales: { y: { beginAtZero: true } }
+            });
+    });
+
+    // Gráfico de Linhas: Novos Clientes por Dia
+    fetchData("{% url 'dashboard:novos_clientes_por_dia' %}").then(data => {
+        const labels = data.map(item => item.dia);
+        const values = data.map(item => item.total);
+
+        renderChart('novosClientesDiaChart', 'line', labels, values, 'Novos Clientes',
+            'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)', {
+                scales: {
+                    y: { beginAtZero: true },
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            tooltipFormat: 'DD/MM/YYYY',
+                            displayFormats: {
+                                day: 'DD/MM/YYYY'
+                            }
+                        },
+                        title: { display: true, text: 'Dia' }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    legend: {
+                        display: false
+                    }
+                }
+            });
+    });
+
+    // Gráfico de Linhas: Novos Clientes por Mês
+    fetchData("{% url 'dashboard:novos_clientes_por_mes' %}").then(data => {
+        const labels = data.map(item => item.mes);
+        const values = data.map(item => item.total);
+
+        renderChart('novosClientesChart', 'line', labels, values, 'Novos Clientes',
+            'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)', {
+                scales: {
+                    y: { beginAtZero: true },
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'MM/YYYY',
+                            displayFormats: {
+                                month: 'MM/YYYY'
+                            }
+                        },
+                        title: { display: true, text: 'Mês' }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    legend: {
+                        display: false
+                    }
+                }
+            });
+    });
+</script>
+{% endblock %}

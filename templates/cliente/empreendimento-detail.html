@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include '_partials/sidebar.html' %}
+<div id="content-wrapper" class="d-flex flex-column">
+    <div id="content">
+        {% include '_partials/topbar.html' %}
+        <div class="container-fluid">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h1 class="h3 text-gray-800 text-uppercase">{{ empreendimento.nome }}</h1>
+            </div>
+
+            <!-- Alertas de Feedback -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-primary text-uppercase text-center w-50 mx-auto" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Navegação por Abas -->
+            <ul class="nav nav-pills justify-content-center mb-3">
+                <li class="nav-item">
+                    <button class="nav-link active" id="pills-home-tab" data-toggle="pill"
+                            data-target="#pills-home" type="button">Informações Gerais</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="pills-home-tab2" data-toggle="pill"
+                            data-target="#pills-home2" type="button">Documentos</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="pills-profile-tab" data-toggle="pill"
+                            data-target="#pills-profile" type="button">Localização</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="pills-contact-tab" data-toggle="pill"
+                            data-target="#pills-contact" type="button">Andamento da Obra</button>
+                </li>
+            </ul>
+
+            <!-- Conteúdo das Abas -->
+            <div class="tab-content" id="pills-tabContent">
+                
+                <!-- Aba Informações Gerais -->
+                <div class="tab-pane fade show active" id="pills-home">
+                    <h4 class="text-uppercase mt-4">Informações Gerais</h4>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><i class="fa fa-building text-primary me-2"></i> <strong>Número de Unidades:</strong> {{ empreendimento.numero_unidades }}</li>
+                                <li class="list-group-item"><i class="fa fa-th-large text-primary me-2"></i> <strong>Quantidade de Blocos:</strong> {{ empreendimento.quantidade_blocos }}</li>
+                                <li class="list-group-item"><i class="fa fa-folder text-primary me-2"></i> <strong>Status:</strong> {{ empreendimento.status_empreendimento }}</li>
+                                <li class="list-group-item"><i class="fa fa-tasks text-primary me-2"></i> <strong>Estágio da Obra:</strong> {{ empreendimento.estagio_empreendimento }}</li>
+                                <li class="list-group-item"><i class="fa fa-map-marker text-primary me-2"></i> <strong>Endereço:</strong> {{ empreendimento.logradouro }}</li>
+                                <li class="list-group-item"><i class="fa fa-globe text-primary me-2"></i> <strong>Cidade/Estado:</strong> {{ empreendimento.cidade }} - {{ empreendimento.estado }}</li>
+                                <li class="list-group-item"><i class="fa fa-calendar text-primary me-2"></i> <strong>Previsão de Entrega:</strong> {{ empreendimento.previsao_entrega }}</li>
+                            </ul>
+                            <p class="text-danger mt-3">A Unidade {{ request.user.unidade }} do Bloco {{ request.user.bloco }} pertence a você.</p>
+                        </div>
+                        <div class="col-md-8">
+                            <img src="{{ empreendimento.capa.url }}" class="img-fluid rounded shadow-sm" alt="Imagem do Empreendimento">
+                        </div>
+                    </div>
+
+                    <!-- Galeria de Fotos -->
+                    <h4 class="text-uppercase mt-5">Fotos</h4>
+                    <div class="row">
+                        {% if fotos %}
+                            {% for foto in fotos %}
+                                <div class="col-md-3 mb-3">
+                                    <a href="{{ foto.imagem.url }}" target="_blank">
+                                        <img src="{{ foto.imagem.url }}" class="img-fluid rounded shadow-sm" style="height: 200px; object-fit: cover;">
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-center text-muted">Nenhuma foto encontrada.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Aba Documentos -->
+                <div class="tab-pane fade" id="pills-home2">
+                    <h4 class="text-uppercase mt-4">Documentos</h4>
+                    <div class="row">
+                        {% if documentos %}
+                            {% for documento in documentos %}
+                                <div class="col-md-3 mb-3 text-center">
+                                    <a href="{{ documento.arquivo.url }}" target="_blank">
+                                        <img src="{% static 'images/arquivo-icone.jpg' %}" class="img-fluid w-50">
+                                        <p>{{ documento.nome_arquivo }}</p>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-center text-muted">Nenhum documento encontrado.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Aba Localização -->
+                <div class="tab-pane fade" id="pills-profile">
+                    <h4 class="text-uppercase mt-4">Localização</h4>
+                    <div class="map-container">
+                        {{ empreendimento.link_google_maps|safe }}
+                    </div>
+                </div>
+
+                <!-- Aba Andamento da Obra -->
+                <div class="tab-pane fade" id="pills-contact">
+                    <h4 class="text-uppercase mt-4">Andamento da Obra</h4>
+
+                    <!-- Progresso Total -->
+                    <div class="progress-circle mx-auto" style="width: 150px; height: 150px; background: conic-gradient(#28a745 {{ andamento_obra }}%, #e9ecef 0); border-radius: 50%;">
+                        <div class="progress-circle-inner d-flex align-items-center justify-content-center text-white" style="width: 130px; height: 130px; background-color: #343a40; border-radius: 50%;">
+                            <span style="font-size: 1.2rem;">{{ andamento_obra }}%</span>
+                        </div>
+                    </div>
+                    <p class="text-center font-weight-bold mt-3">Obra Concluída</p>
+
+                    <!-- Progresso por Categoria -->
+                    <div class="row justify-content-center">
+                        {% if object.exibe_terraplanagem %}
+                            <div class="col-md-5 col-lg-3 py-2 text-center">
+                                <span><i class="fas fa-mountain"></i> Terraplanagem</span>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ object.percentual_terraplanagem }}%;" aria-valuenow="{{ object.percentual_terraplanagem }}" aria-valuemin="0" aria-valuemax="100">{{ object.percentual_terraplanagem }}%</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if object.exibe_pavimentacao %}
+                            <div class="col-md-5 col-lg-3 py-2 text-center">
+                                <span><i class="fas fa-road"></i> Pavimentação</span>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ object.percentual_pavimentacao }}%;" aria-valuenow="{{ object.percentual_pavimentacao }}" aria-valuemin="0" aria-valuemax="100">{{ object.percentual_pavimentacao }}%</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if object.exibe_habitacao %}
+                            <div class="col-md-5 col-lg-3 py-2 text-center">
+                                <span><i class="fas fa-home"></i> Habitação</span>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ object.percentual_habitacao }}%;" aria-valuenow="{{ object.percentual_habitacao }}" aria-valuemin="0" aria-valuemax="100">{{ object.percentual_habitacao }}%</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if object.exibe_drenagem %}
+                            <div class="col-md-5 col-lg-3 py-2 text-center">
+                                <span><i class="fas fa-water"></i> Drenagem</span>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ object.percentual_drenagem }}%;" aria-valuenow="{{ object.percentual_drenagem }}" aria-valuemin="0" aria-valuemax="100">{{ object.percentual_drenagem }}%</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if object.exibe_paisagismo %}
+                            <div class="col-md-5 col-lg-3 py-2 text-center">
+                                <span><i class="fas fa-tree"></i> Paisagismo</span>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-secondary progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ object.percentual_paisagismo }}%;" aria-valuenow="{{ object.percentual_paisagismo }}" aria-valuemin="0" aria-valuemax="100">{{ object.percentual_paisagismo }}%</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if object.exibe_esgoto_sanitario %}
+                            <div class="col-md-5 col-lg-3 py-2 text-center">
+                                <span><i class="fas fa-toilet"></i> Esgoto Sanitário</span>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-dark progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ object.percentual_esgoto_sanitario }}%;" aria-valuenow="{{ object.percentual_esgoto_sanitario }}" aria-valuemin="0" aria-valuemax="100">{{ object.percentual_esgoto_sanitario }}%</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if object.exibe_agua_potavel %}
+                            <div class="col-md-5 col-lg-3 py-2 text-center">
+                                <span><i class="fas fa-tint"></i> Água Potável</span>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ object.percentual_agua_potavel }}%;" aria-valuenow="{{ object.percentual_agua_potavel }}" aria-valuemin="0" aria-valuemax="100">{{ object.percentual_agua_potavel }}%</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if object.exibe_energia_iluminacao %}
+                            <div class="col-md-5 col-lg-3 py-2 text-center">
+                                <span><i class="fas fa-lightbulb"></i> Energia e Iluminação</span>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-primary text-white progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ object.percentual_energia_iluminacao }}%;" aria-valuenow="{{ object.percentual_energia_iluminacao }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ object.percentual_energia_iluminacao }}%
+                                    </div>
+                                </div>
+                            </div>                                        
+                        {% endif %}
+                    </div>
+
+                    <!-- Fotos Andamento -->
+                    <div class="col-xl-12 col-md-6">
+                        <h3 class="text-uppercase mt-4 mb-3">Fotos andamento obra</h3>
+                        <div class="row">
+                            {% if fotos_andamento_obra %}
+                                {% for row in fotos_andamento_obra %}
+                                    <div class="col-md-3 py-2">
+                                        <div class="card shadow-sm h-100">
+                                            <div class="card-header text-center bg-light font-weight-bold text-uppercase" style="font-size: 0.9rem;">
+                                                {{ row.mes }}
+                                            </div>
+                                            <a href="{{ row.imagem.url }}" target="_blank">
+                                                <img src="{{ row.imagem.url }}" class="card-img-top" alt="Foto {{ row.mes }}" style="max-height: 200px; object-fit: cover;">
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-primary fade show mt-4 text-uppercase text-center w-50 mx-auto mb-5" role="alert">
+                                    Nenhuma foto encontrada
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>         
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include '_partials/footer.html' %}
+</div>
+{% endblock %}

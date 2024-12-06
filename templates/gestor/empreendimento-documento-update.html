@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    {% include '_partials/sidebar.html' %}
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            {% include '_partials/topbar.html' %}
+            <div class="container-fluid">
+                <!-- Título e Botão Voltar -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 text-gray-800 text-uppercase">Documentos: {{ empreendimento.nome }}</h1>
+                    <a href="{% url 'gestores:empreendimento-update' empreendimento.id %}" class="btn btn-primary shadow-sm">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                </div>
+
+                <!-- Mensagens de Sucesso -->
+                {% if messages %}
+                    <div class="alert alert-primary text-center text-uppercase" role="alert">
+                        {% for message in messages %}{{ message }}{% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Lista de Documentos -->
+                <div class="row">
+                    {% for documento in documentos %}
+                        <div class="col-md-3 py-3">
+                            <div class="card shadow-sm h-100 text-center">
+                                <div class="card-body">
+                                    <a href="{% url 'gestores:empreendimento-documento-delete' documento.id %}" 
+                                       class="btn btn-danger btn-sm float-end" title="Apagar">X</a>
+                                    <a href="{{ documento.arquivo.url }}" target="_blank">
+                                        <img src="{% static 'images/arquivo-icone.jpg' %}" class="w-50 my-3" alt="Documento">
+                                        <p class="text-truncate mb-0">{{ documento.nome_arquivo }}</p>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-md-12">
+                            <div class="alert alert-primary text-center text-uppercase mt-4">Nenhum documento encontrado</div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Formulário de Upload -->
+                <div class="row">
+                    <div class="col-md-6 mx-auto">
+                        <form method="POST" enctype="multipart/form-data" class="mt-4">
+                            {% csrf_token %}
+                            {% if form.errors %}
+                                <div class="alert alert-danger">
+                                    <p>Verifique se os dados informados estão corretos:</p>
+                                    <ul>
+                                        {% for field in form %}
+                                            {% if field.errors %}
+                                                <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+
+                            <input type="hidden" name="empreendimento" value="{{ empreendimento.id }}">
+
+                            <div class="form-group mb-3">
+                                <label for="id_nome_arquivo" class="form-label">Nome do Documento</label>
+                                <input type="text" name="nome_arquivo" class="form-control" id="id_nome_arquivo" required>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="id_arquivo" class="form-label">Documento Empreendimento</label>
+                                <div class="custom-file">
+                                    <input type="file" name="arquivo" class="custom-file-input" id="id_arquivo" required>
+                                    <label class="custom-file-label" for="id_arquivo">
+                                        <i class="fas fa-upload"></i> Escolha o arquivo...
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-success btn-lg text-uppercase shadow-sm px-4">
+                                    <i class="fas fa-save"></i> Salvar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include '_partials/footer.html' %}
+    </div>
+{% endblock %}
+
+{% block js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Mostrar nome do arquivo selecionado
+        $('.custom-file-input').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').html('<i class="fas fa-file-alt"></i> ' + fileName);
+        });
+    });
+</script>
+{% endblock %}

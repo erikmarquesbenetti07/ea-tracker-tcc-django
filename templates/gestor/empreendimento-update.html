@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% include '_partials/sidebar.html' %}
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            {% include '_partials/topbar.html' %}
+            <div class="container-fluid">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800 text-uppercase">Atualizar Empreendimento</h1>
+                    <a href="{% url 'gestores:empreendimentos' %}" class="btn btn-primary shadow-sm">
+                        <i class="fas fa-arrow-left text-white-50"></i> Voltar
+                    </a>
+                </div>
+
+                <!-- Mensagens de Feedback -->
+                {% if messages %}
+                    <div class="alert alert-primary text-uppercase text-center w-50 mx-auto" role="alert">
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Navegação entre seções do Empreendimento -->
+                <div class="mx-auto mb-4">
+                    <ul class="nav nav-pills justify-content-center" id="pills-tab" role="tablist">
+                        <li class="nav-item mx-1">
+                            <a href="{% url 'gestores:empreendimento-foto-update' empreendimento.id %}" class="btn btn-outline-info">Fotos</a>
+                        </li>
+                        <li class="nav-item mx-1">
+                            <a href="{% url 'gestores:empreendimento-documento-update' empreendimento.id %}" class="btn btn-outline-info">Documentos</a>
+                        </li>
+                        <li class="nav-item mx-1">
+                            <a href="{% url 'gestores:empreendimento-andamento-obra-update' empreendimento.id %}" class="btn btn-outline-info">Andamento da obra</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Formulário de Atualização -->
+                <div class="row justify-content-center">
+                    <div class="col-md-10">
+                        <!-- Exibição de Erros -->
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <p>Verifique se os dados informados estão corretos:</p>
+                                <ul>
+                                    {% for field in form %}
+                                        {% if field.errors %}
+                                            <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        <form method="post" enctype="multipart/form-data" class="mt-4">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="nome">Nome</label>
+                                <input type="text" class="form-control" name="nome" value="{{ form.nome.value }}" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2 mb-3">
+                                    <label for="numero_unidades">Nº de Unidades</label>
+                                    <input type="text" class="form-control" name="numero_unidades" maxlength="80" value="{{ form.numero_unidades.value }}" required>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="quantidade_blocos">Nº de Blocos</label>
+                                    <input type="text" class="form-control" name="quantidade_blocos" maxlength="80" value="{{ form.quantidade_blocos.value }}" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="status">Status</label>
+                                    {{ form.status }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="estagio">Estágio</label>
+                                    {{ form.estagio }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="cep">CEP</label>
+                                    <input type="text" class="form-control" name="cep" id="cep" maxlength="9" value="{{ form.cep.value }}" required>
+                                </div>                                
+                                <div class="col-md-5 mb-3">
+                                    <label for="logradouro">Endereço</label>
+                                    <input type="text" class="form-control" name="logradouro" maxlength="80" value="{{ form.logradouro.value }}" required id="logradouro">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="cidade">Cidade</label>
+                                    <input type="text" class="form-control" name="cidade" value="{{ form.cidade.value }}" id="cidade" required>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="estado">Estado</label>
+                                    {{ form.estado }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="previsao_entrega">Previsão de entrega</label>
+                                    <input type="date" class="form-control" name="previsao_entrega" value="{{ form.previsao_entrega.value|date:'Y-m-d' }}" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="link_google_maps">Localização (Link Google Maps)</label>
+                                    <input type="text" name="link_google_maps" class="form-control" value="{{ form.link_google_maps.value }}" required>
+                                </div>  
+                                <div class="col-md-4 mb-3">
+                                    <label for="capa">Capa</label>
+                                    {% if form.capa.value %}
+                                        <div class="border rounded p-2 mb-2" style="border-color: #ddd; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+                                            <img src="{{ form.capa.value.url }}" class="w-100" alt="Capa Atual" style="border-radius: 5px;">
+                                        </div>
+                                    {% endif %}
+                                    <div class="custom-file">
+                                        <input type="file" name="capa" class="custom-file-input" id="id_capa">
+                                        <label class="custom-file-label" for="id_capa"><i class="fas fa-upload"></i> Escolha a nova capa...</label>
+                                    </div>
+                                </div>    
+                                <div class="col-md-4 mb-3">
+                                    <label for="is_active">Visível?</label>
+                                    {{ form.visivel }}
+                                </div>                            
+                            </div>
+                            <hr class="mb-4">
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-success btn-lg text-uppercase shadow-sm px-4">
+                                    <i class="fas fa-save"></i> Salvar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include '_partials/footer.html' %}
+    </div>
+    {% endblock %}
+ 
+{% block js %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#cep').mask('00000-000');
+            $('#previsao_entrega').mask('00/00/0000');
+            
+            // Busca automática do CEP
+            $('#cep').on('blur', function() {
+                var cep = $(this).val().replace('-', '');
+                if (cep.length === 8) {
+                    $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
+                        if (!data.erro) {
+                            $('#logradouro').val(data.logradouro);
+                            
+                            $('#cidade').val(data.localidade);
+                            $('#id_estado').val(data.uf).change();
+                        } else {
+                            alert("CEP não encontrado!");
+                        }
+                    }).fail(function() {
+                        alert("Erro ao consultar o CEP.");
+                    });
+                } else {
+                    alert("CEP inválido!");
+                }
+            });
+        });
+    </script>
+{% endblock %}

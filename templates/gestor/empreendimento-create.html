@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% include '_partials/sidebar.html' %}
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            {% include '_partials/topbar.html' %}
+            <div class="container-fluid">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800 text-uppercase">Cadastrar Empreendimento</h1>
+                    <a href="{% url 'gestores:empreendimentos' %}" class="d-block btn btn-primary shadow-sm">
+                        <i class="fas fa-arrow-left text-white-50"></i> Voltar
+                    </a>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-md-12">
+                        {% if form.errors %}
+                            <div id="errors">
+                                <div class="alert alert-danger">
+                                    <p>Verifique se os dados informados estão corretos:</p>
+                                    {{ form.non_field_errors }}
+                                    <ul>
+                                        {% for field in form %}
+                                            {% if field.errors %}
+                                                <li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="nome">Nome</label>
+                                <input type="text" class="form-control" name="nome" required>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-2 mb-3">
+                                    <label for="numero_unidades">Nº de Unidades</label>
+                                    <input type="text" class="form-control" name="numero_unidades" maxlength="20" required>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="quantidade_blocos">Nº de Blocos</label>
+                                    <input type="text" class="form-control" name="quantidade_blocos" maxlength="20" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="status">Status</label>
+                                    {{ form.status }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="estagio">Estágio</label>
+                                    {{ form.estagio }}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="cep">CEP</label>
+                                <input type="text" class="form-control" name="cep" id="cep" maxlength="9" required>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="logradouro">Endereço</label>
+                                    <input type="text" class="form-control" name="logradouro" id="logradouro" maxlength="80" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="cidade">Cidade</label>
+                                    <input type="text" class="form-control" name="cidade" id="cidade" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="estado">Estado</label>
+                                    {{ form.estado }}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="previsao_entrega">Previsão de entrega</label>
+                                    <input type="text" class="form-control" name="previsao_entrega" id="previsao_entrega" required>
+                                </div>     
+                                <div class="col-md-4 mb-3">
+                                    <label for="link_google_maps">Localização (Link Google Maps)</label>
+                                    <input type="text" name="link_google_maps" class="form-control" required>
+                                </div>                            
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_capa" class="form-label">Capa</label>
+                                    <div class="custom-file">
+                                        <input type="file" name="capa" class="custom-file-input" id="id_capa" required>
+                                        <label class="custom-file-label" for="id_capa">
+                                            <i class="fas fa-upload"></i> Escolha a capa...
+                                        </label>
+                                    </div>
+                                </div>                                
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-success btn-lg shadow-sm px-4">
+                                    <i class="fas fa-save"></i> Salvar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include '_partials/footer.html' %}
+    </div>
+{% endblock %}
+
+{% block js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#cep').mask('00000-000');
+        $('#previsao_entrega').mask('00/00/0000');
+        
+        // Busca automática do CEP
+        $('#cep').on('blur', function() {
+            var cep = $(this).val().replace('-', '');
+            if (cep.length === 8) {
+                $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
+                    if (!data.erro) {
+                        $('#logradouro').val(data.logradouro);
+                        
+                        $('#cidade').val(data.localidade);
+                        $('#id_estado').val(data.uf).change();
+                    } else {
+                        alert("CEP não encontrado!");
+                    }
+                }).fail(function() {
+                    alert("Erro ao consultar o CEP.");
+                });
+            } else {
+                alert("CEP inválido!");
+            }
+        });
+    });
+</script>
+{% endblock %}

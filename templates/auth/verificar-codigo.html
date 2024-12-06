@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container pt-5 mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="card border-0 shadow-lg my-5">
+                    <div class="card-body p-5">
+                        <!-- Logo -->
+                        <div class="text-center mb-4">
+                            <img src="{% static 'images/eatracker-logo.png' %}" class="img-fluid w-25" alt="EA Tracker logo">
+                            <h4 class="text-uppercase mt-3">Verificar Código</h4>
+                        </div>
+
+                        <!-- Feedback Messages -->
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-success text-center text-uppercase" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Formulário para Inserir o Código de Verificação -->
+                        <form method="post" class="user" onsubmit="return validarSenha()">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <input type="text" class="form-control form-control-user" name="codigo" placeholder="Digite o código de verificação" required>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="password" id="senha" class="form-control form-control-user" name="senha" placeholder="Digite sua nova senha" required>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="password" id="senha_confirmacao" class="form-control form-control-user" name="senha_confirmacao" placeholder="Confirme sua senha" required>
+                            </div>
+
+                            <!-- Mensagem de erro -->
+                            <div id="mensagem-erro" style="display: none; color: red; font-size: 0.9em; text-align: center; margin-bottom: 15px;">
+                                As senhas não coincidem. Por favor, verifique e tente novamente.
+                            </div>
+
+                            <button type="submit" class="btn btn-info btn-user btn-block text-uppercase shadow-sm">
+                                Verificar Código
+                            </button>
+                        </form>
+
+                        <!-- Link para login -->
+                        <div class="text-center mt-3">
+                            <a class="small" href="{% url 'usuarios:login-usuario' %}">Voltar para o login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Validação -->
+    <script>
+        function validarSenha() {
+            const senha = document.getElementById("senha").value;
+            const senhaConfirmacao = document.getElementById("senha_confirmacao").value;
+            const mensagemErro = document.getElementById("mensagem-erro");
+
+            if (senha !== senhaConfirmacao) {
+                mensagemErro.style.display = "block"; // Exibe a mensagem de erro
+                return false; // Impede o envio do formulário
+            } else {
+                mensagemErro.style.display = "none"; // Esconde a mensagem de erro
+            }
+            return true; // Permite o envio do formulário
+        }
+    </script>
+{% endblock %}
